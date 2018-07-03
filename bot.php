@@ -97,6 +97,7 @@ function onSelect(TeamSpeak3_Node_Host $host) {
     $host->serverGetSelected()->notifyRegister("textserver");
     $host->serverGetSelected()->notifyRegister("textchannel");
     $host->serverGetSelected()->notifyRegister("textprivate");
+    kickBanned($host);
 }
 
 function onTextmessage(TeamSpeak3_Adapter_ServerQuery_Event $event, TeamSpeak3_Node_Host $host) {
@@ -142,48 +143,61 @@ function onClientLeft(TeamSpeak3_Adapter_ServerQuery_Event $event, TeamSpeak3_No
 }
 
 function onClientEnter(TeamSpeak3_Adapter_ServerQuery_Event $event, TeamSpeak3_Node_Host $host) {
-    global $enforce_myteamspeak_auth,$mysql,$db;
-    try {
-        if ($event["client_type"] != 0) return;
-        $client = $host->serverGetSelected()->clientGetById($event["clid"]);
-        $clientInfo = $client->getInfo();
-        $uid = $clientInfo["client_unique_identifier"];
-        $mytsid = $clientInfo["client_myteamspeak_id"];
-        $id_exists = isset($mytsid);
-        $id_valid_length = strlen($mytsid) == 44;
-        $id_matches = preg_match("/^A[\da-zA-Z\/]{43}$/", $mytsid);
-        print_r("\$uid = $uid | \$mytsid = $mytsid | \$id_exists = $id_exists | \$id_valid_length = $id_valid_length | \$id_matches = $id_matches\n");
-        if ($id_exists && $id_valid_length && $id_matches) {
-            $sql = "SELECT * FROM ".$mysql['table']." where myteamspeak_id='".$mytsid."'";
-            print_r($sql."\n");
-            $result = $db->query($sql);
-            if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    print_r("Found ban myteamspeak_id=".$row["myteamspeak_id"]." uid=".$row["uid"]."\n");
-                    kickClient($client, 'banned_id');
-                    return;
-                }
+    if ($event["client_type"] != 0) return;
+    $client = $host->serverGetSelected()->clientGetById($event["clid"]);
+    checkClient($client);
+}
+
+function kickBanned(TeamSpeak3_Node_Host $host){
+    $clients = $host->serverGetSelected()->clientList();
+    foreach ($clients as $client) {
+        if (checkClient($client)) {
+            $clones = $client->getClones();
+            foreach ($clones as $clone) {
+                print_r("Found clone \"".$clone["client_nickname"] ."\" of banned client \"".$client["client_nickname"]."\"");
             }
         }
-        if ($enforce_myteamspeak_auth) {
-            if (!$id_exists) {
-                kickClient($client, 'missing_id');
-                return;
-            }
-            if (!$id_valid_length) {
-                kickClient($client, 'invalid_id');
-                return;
-            }
-            if (!$id_matches) {
-                kickClient($client, 'invalid_id');
-            }
-        }
-    } catch(TeamSpeak3_Exception $e) {
-        print_r("Teamspeak Error ".$e->getCode().": ".$e->getMessage()."\n");
-        $host->serverGetSelected()->message("[color=red]Error");
-        // $client = $host->serverGetSelected()->clientGetById($event["clid"]);
-        //$client->kick(5, "Error while verifying myTeamSpeak ID!");// kickClient($client, 'error');
     }
+}
+
+function checkClient(TeamSpeak3_Node_Client $client) {
+    global $enforce_myteamspeak_auth,$mysql,$db;
+    $clientInfo = $client->getInfo();
+    $type = $clientInfo["client_type"];
+    if ($type != 0) return;
+    $uid = $clientInfo["client_unique_identifier"];
+    $mytsid = $clientInfo["client_myteamspeak_id"];
+    $id_exists = isset($mytsid);
+    $id_valid_length = strlen($mytsid) == 44;
+    $id_matches = preg_match("/^A[\da-zA-Z\/]{43}$/", $mytsid);
+    print_r("\$uid = $uid | \$mytsid = $mytsid | \$id_exists = $id_exists | \$id_valid_length = $id_valid_length | \$id_matches = $id_matches\n");
+    if ($id_exists && $id_valid_length && $id_matches) {
+        $sql = "SELECT * FROM ".$mysql['table']." where myteamspeak_id='".$mytsid."'";
+        print_r($sql."\n");
+        $result = $db->query($sql);
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                print_r("Found ban myteamspeak_id=".$row["myteamspeak_id"]." uid=".$row["uid"]."\n");
+                kickClient($client, 'banned_id');
+                return true;
+            }
+        }
+    }
+    if ($enforce_myteamspeak_auth) {
+        if (!$id_exists) {
+            kickClient($client, 'missing_id');
+            return true;
+        }
+        if (!$id_valid_length) {
+            kickClient($client, 'invalid_id');
+            return true;
+        }
+        if (!$id_matches) {
+            kickClient($client, 'invalid_id');
+            return true;
+        }
+    }
+    return false;
 }
 
 function kickClient(TeamSpeak3_Node_Client $client, $reason) { // , $clientInfo = null
