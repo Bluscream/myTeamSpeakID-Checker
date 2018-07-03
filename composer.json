@@ -1,0 +1,26 @@
+{
+    "name": "SossenSystems/myTeamSpeakID-Checker",
+    "description": "myTeamSpeakID-Checker",
+    "keywords": ["teamspeak", "ts3"],
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/SossenSystems/myTeamSpeakID-Checker",
+    "authors": [
+		{
+			"name": "SossenSystems"
+		},
+		{
+			"name": "Bluscream",
+			"email": "omitomit1@gmail.com"
+		}
+	],
+    "support": {
+      	"email": "omitomit1@gmail.com",
+      	"issues": "https://github.com/SossenSystems/myTeamSpeakID-Checker/issues",
+      	"docs": "https://github.com/SossenSystems/myTeamSpeakID-Checker/blob/master/README.MD"
+    },
+    "require": {
+      	"php": ">=7.2.4",
+        "planetteamspeak/ts3-php-framework": "~1.1.32"
+    }
+}

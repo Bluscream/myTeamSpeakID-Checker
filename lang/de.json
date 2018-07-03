@@ -1,0 +1,21 @@
+{
+  "missing_id": {
+    "private": "[color=orange]Hallo,\nEs sieht aus als wärst du nicht bei myTeamSpeak eingeloggt.\nBitte stelle folgendes sicher:\n- You are using the latest client version (Click on \"Tools\"->\"Options\"->\"Application\" and set your \"Update Channel\" to \"Beta\" then click on \"Help\"->\"Check for update\" and let TeamSpeak update to 3.2.0)\n- You are logged in to myTeamspeak (Click on \"Tools\"->\"Options\"->\"myTeamSpeak\" and log in or register)\n- You are sending your myTeamspeak ID (Click on \"More\" and check the \"Send myTeamSpeak ID\" checkbox in your \"Connections\"->\"Connect\" dialog or your bookmark)",
+    "poke": "[color=red]Fehlende ID![/color] Mehr informationen findest du in deinen privaten Nachrichten",
+    "kick": "Fehlende myTeamSpeak ID!"
+  },
+  "invalid_id": {
+    "private": "[color=red]Hallo,\nAnscheinend ist deine myTeamspeak ID ungültig!\n\nBitte melde diesen Vorfall auf [url=https://github.com/SossenSystems/myTeamSpeakID-Checker/issues/new]Github[/url]!\n\n{mytsid}",
+    "poke": "[color=red]Ungültige ID![/color] Mehr informationen in deinen privaten Nachrichten!",
+    "kick": "Ungültige myTeamSpeak ID!"
+  },
+  "error": {
+    "kick": "Fehler bei der Verifizierung!"
+  },
+  "banned_id": {
+    "ban": {
+      "reason": "Bannumgehung!",
+      "duration": 0
+    }
+  }
+}

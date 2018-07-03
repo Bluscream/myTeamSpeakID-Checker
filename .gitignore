@@ -1,0 +1,6 @@
+.git/
+vendor/
+
+bot2.php
+config.php
+myTeamSpeak.php
